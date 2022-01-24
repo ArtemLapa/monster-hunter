@@ -22,6 +22,7 @@ $style: "app";
   &__title {
     font-family: "Helvetica Neue";
     text-align: center;
+    margin-bottom: 40px;
   }
 }
 </style>

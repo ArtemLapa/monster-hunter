@@ -2,8 +2,8 @@
 
 <script>
 export default {
-  name: "MonsterMain",
+  name: "MonsterHealthInput",
 };
 </script>
 
-<style scoped lang="scss"></style>
+<style></style>
