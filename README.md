@@ -1,8 +1,6 @@
 # monster-hunter
 
-## See live demo
-
-[Live demo Task Manager](https://monster-hunter-la.netlify.app/)
+## [See live demo](https://monster-hunter-la.netlify.app/)
 
 ## Project setup
 
