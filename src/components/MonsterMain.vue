@@ -4,22 +4,26 @@
       <div class="monster__health-wrapper">
         <b-col>
           <h3 class="text-center">{{ userData.character }}</h3>
-          <b-progress-bar
-            show-value
-            :value="userData.hp"
-            variant="success"
-          ></b-progress-bar>
+          <div class="monster__hp-status-wrapper">
+            <b-progress-bar
+              show-value
+              :value="userData.hp"
+              variant="success"
+            ></b-progress-bar>
+          </div>
         </b-col>
 
         <b-col>
           <h3 class="text-center">
             {{ monsterData.character }}
           </h3>
-          <b-progress-bar
-            show-value
-            :value="monsterData.hp"
-            variant="success"
-          ></b-progress-bar>
+          <div class="monster__hp-status-wrapper">
+            <b-progress-bar
+              show-value
+              :value="monsterData.hp"
+              variant="success"
+            ></b-progress-bar>
+          </div>
         </b-col>
       </div>
     </b-row>
@@ -36,7 +40,9 @@
           <button type="button" class="btn btn-success mr-3" @click="heal">
             Heal
           </button>
-          <button type="button" class="btn btn-danger mr-3">Surrend</button>
+          <button type="button" class="btn btn-danger" @click="isSurrend">
+            Surrend
+          </button>
         </div>
       </b-col>
     </b-row>
@@ -46,11 +52,12 @@
         <h4 class="text-center mb-2">Fight Log</h4>
         <div class="monster__fight-log">
           <div
-            class="monster__log-message monster__log-message--start-game"
+            class="monster__log-message"
+            :class="log.type"
             v-for="(log, index) in gameLogs"
             :key="index"
           >
-            {{ log }}
+            {{ log.msg }}
           </div>
         </div>
       </b-col>
@@ -62,12 +69,12 @@
 export default {
   name: "MonsterMain",
   data: () => ({
+    gameRun: false,
     userData: {
       character: "User",
       hp: 100,
       minAttackRange: 7,
       maxAttackRange: 14,
-      // healthPotion: 3,
     },
     monsterData: {
       character: "Monster",
@@ -75,24 +82,52 @@ export default {
       minAttackRange: 9,
       maxAttackRange: 16,
     },
-    gameLogs: [],
+    gameLogs: [
+      {
+        msg: "",
+        type: "",
+      },
+    ],
   }),
   methods: {
     startGame() {
+      this.gameRun = true;
       this.userData.hp = 100;
       this.monsterData.hp = 100;
-      this.userData.healthPotion = 3;
-      this.gameLogs.push("Game Start");
+      this.gameLogs = [
+        {
+          msg: "",
+          type: "",
+        },
+      ];
+      this.gameLogs.unshift({
+        msg: "Game Start",
+        type: "monster__log-message--start-game",
+      });
     },
 
     commonHit() {
-      this.userAttack();
-      this.monsterAttack();
+      if (this.gameRun) {
+        this.userAttack();
+        if (this.checkWin()) {
+          console.log("common hit return");
+          return;
+        }
+        this.monsterAttack();
+        this.checkWin();
+      }
     },
 
     superHit() {
-      this.userSuperAttack();
-      this.monsterAttack();
+      if (this.gameRun) {
+        this.userSuperAttack();
+        if (this.checkWin()) {
+          console.log("superHit hit return");
+          return;
+        }
+        this.monsterAttack();
+        this.checkWin();
+      }
     },
 
     heal() {
@@ -100,7 +135,10 @@ export default {
         if (this.userData.hp < 100 && this.userData.hp > 0) {
           let health = this.calculateDamage(5, 20);
           this.userData.hp += health;
-          this.gameLogs.push(`Player health on ${health} HP`);
+          this.gameLogs.unshift({
+            msg: `Player health on ${health} HP`,
+            type: "monster__log-message--user-heal",
+          });
         }
       }
     },
@@ -111,7 +149,13 @@ export default {
         this.userData.maxAttackRange
       );
       this.monsterData.hp -= damage;
-      this.gameLogs.push(`Player hit a monster ${damage} damage`);
+      if (this.monsterData.hp < 0) {
+        this.monsterData.hp = 0;
+      }
+      this.gameLogs.unshift({
+        msg: `Player hit a monster ${damage} damage`,
+        type: "monster__log-message--user-hit",
+      });
     },
 
     monsterAttack() {
@@ -120,16 +164,49 @@ export default {
         this.monsterData.maxAttackRange
       );
       this.userData.hp -= damage;
-      this.gameLogs.push(`Monster hit a player ${damage} damage`);
+      if (this.userData.hp < 0) {
+        this.userData.hp = 0;
+      }
+      this.gameLogs.unshift();
+      this.gameLogs.unshift({
+        msg: `Monster hit a player ${damage} damage`,
+        type: "monster__log-message--monster-hit",
+      });
     },
 
     userSuperAttack() {
       let damage = this.calculateDamage(9, 20);
       this.monsterData.hp -= damage;
-      this.gameLogs.push(
-        `Player made a Super Hit and deal ${damage} to damage`
-      );
+      if (this.monsterData.hp < 0) {
+        this.monsterData.hp = 0;
+      }
+      this.gameLogs.unshift({
+        msg: `Player made a Super Hit and deal ${damage} to damage`,
+        type: "monster__log-message--user-superhit",
+      });
     },
+
+    checkWin() {
+      if (this.userData.hp <= 0) {
+        this.userData.hp = 0;
+        this.gameRun = false;
+        alert("You Die");
+        this.startGame();
+        return true;
+      } else if (this.monsterData.hp <= 0) {
+        this.monsterData.hp = 0;
+        this.gameRun = false;
+        alert("You Victory");
+        this.startGame();
+        return true;
+      }
+    },
+
+    isSurrend() {
+      alert("You Surrend");
+      this.startGame();
+    },
+
     calculateDamage(min, max) {
       return Math.max(Math.floor(Math.random() * max + 1), min);
     },
@@ -154,6 +231,10 @@ $monster: "monster";
     width: 100%;
     padding: 20px;
     @include box-shadow();
+  }
+
+  &__hp-status-wrapper {
+    background-color: var(--gray);
   }
 
   &__btns-group {
