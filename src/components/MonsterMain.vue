@@ -108,24 +108,20 @@ export default {
 
     commonHit() {
       if (this.gameRun) {
-        this.userAttack();
+        this.round(this.userData, this.monsterData);
         if (this.checkWin()) {
-          console.log("common hit return");
           return;
         }
-        this.monsterAttack();
         this.checkWin();
       }
     },
 
     superHit() {
       if (this.gameRun) {
-        this.userSuperAttack();
+        this.round(this.userData, this.monsterData);
         if (this.checkWin()) {
-          console.log("superHit hit return");
           return;
         }
-        this.monsterAttack();
         this.checkWin();
       }
     },
@@ -143,33 +139,30 @@ export default {
       }
     },
 
-    userAttack() {
-      let damage = this.calculateDamage(
-        this.userData.minAttackRange,
-        this.userData.maxAttackRange
+    round(hero, monster) {
+      let heroDamage = this.calculateDamage(
+        hero.minAttackRange,
+        hero.maxAttackRange
       );
-      this.monsterData.hp -= damage;
-      if (this.monsterData.hp < 0) {
-        this.monsterData.hp = 0;
+      monster.hp -= heroDamage;
+      if (monster.hp < 0) {
+        monster.hp = 0;
       }
       this.gameLogs.unshift({
-        msg: `Player hit a monster ${damage} damage`,
+        msg: `Player hit a monster ${heroDamage} damage`,
         type: "monster__log-message--user-hit",
       });
-    },
 
-    monsterAttack() {
-      let damage = this.calculateDamage(
-        this.monsterData.minAttackRange,
-        this.monsterData.maxAttackRange
+      let monsterDamage = this.calculateDamage(
+        monster.minAttackRange,
+        monster.maxAttackRange
       );
-      this.userData.hp -= damage;
-      if (this.userData.hp < 0) {
-        this.userData.hp = 0;
+      hero.hp -= monsterDamage;
+      if (hero.hp < 0) {
+        hero.hp = 0;
       }
-      this.gameLogs.unshift();
       this.gameLogs.unshift({
-        msg: `Monster hit a player ${damage} damage`,
+        msg: `Monster hit a player ${monsterDamage} damage`,
         type: "monster__log-message--monster-hit",
       });
     },
