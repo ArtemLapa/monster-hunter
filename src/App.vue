@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" class="app">
     <h1 class="app__title">Monster Hunter Game</h1>
     <MonsterMain />
   </div>
@@ -17,10 +17,11 @@ export default {
 </script>
 
 <style lang="scss">
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
 $style: "app";
 .#{$style} {
+  font-family: "Roboto", sans-serif;
   &__title {
-    font-family: "Helvetica Neue";
     text-align: center;
     margin-bottom: 40px;
   }
